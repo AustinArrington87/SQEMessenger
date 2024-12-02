@@ -403,16 +403,114 @@ const ChatScreen: React.FC = () => (
   </View>
 );
 
-const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => (
-  <View style={styles.loginContainer}>
-    <Image source={require('./assets/images/sqe_logo-removebg.png')} style={styles.logo} />
-    <TextInput placeholder="Username" style={styles.input} />
-    <TextInput placeholder="Password" secureTextEntry style={styles.input} />
-    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Messenger')}>
-      <Text style={styles.buttonText}>Login</Text>
-    </TouchableOpacity>
-  </View>
-);
+const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+  const [registerModalVisible, setRegisterModalVisible] = useState(false);
+
+  return (
+    <View style={styles.loginContainer}>
+      <Image source={require('./assets/images/sqe_logo-removebg.png')} style={styles.logo} />
+      <TextInput placeholder="Username" style={styles.input} />
+      <TextInput placeholder="Password" secureTextEntry style={styles.input} />
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Messenger')}>
+        <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
+      <TouchableOpacity 
+        style={styles.registerButton} 
+        onPress={() => setRegisterModalVisible(true)}
+      >
+        <Text style={styles.buttonText}>Register</Text>
+      </TouchableOpacity>
+      <RegisterModal 
+        visible={registerModalVisible}
+        onClose={() => setRegisterModalVisible(false)}
+      />
+    </View>
+  );
+};
+// Registration Modal Component
+const RegisterModal: React.FC<{ visible: boolean; onClose: () => void }> = ({ visible, onClose }) => {
+  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [verificationStarted, setVerificationStarted] = useState(false);
+
+  const handleClose = () => {
+    setVerificationStarted(false);
+    setEmail('');
+    setUsername('');
+    setPassword('');
+    onClose();
+  };
+
+  const startVerification = () => {
+    setVerificationStarted(true);
+  };
+
+  return (
+    <Modal visible={visible} transparent animationType="slide">
+      <View style={styles.modalContainer}>
+        <View style={styles.registerModalContent}>
+          <TouchableOpacity 
+            style={styles.closeButton} 
+            onPress={handleClose}
+          >
+            <Ionicons name="close-circle" size={40} color="#333" />
+          </TouchableOpacity>
+          
+          {!verificationStarted ? (
+            <>
+              <Text style={styles.registerTitle}>Join SQE</Text>
+              <Text style={styles.registerSubtitle}>
+                You are one step closer to joining SQE and entering the quantum secure future.
+              </Text>
+              <Text style={styles.stepTitle}>Step 1: Create Login Credentials</Text>
+              <TextInput
+                style={styles.registerInput}
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+              />
+              <TextInput
+                style={styles.registerInput}
+                placeholder="Username"
+                value={username}
+                onChangeText={setUsername}
+              />
+              <TextInput
+                style={styles.registerInput}
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+              />
+              <TouchableOpacity
+                style={styles.verifyButton}
+                onPress={startVerification}
+              >
+                <Text style={styles.verifyButtonText}>Start Verification</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <Text style={styles.stepTitle}>Step 2: Verification</Text>
+              <Text style={styles.verificationText}>
+                In this step we gather metrics around your device to ensure you are you. 
+                This process can take up to a few days and we will email you when it's completed.
+              </Text>
+              <TouchableOpacity
+                style={[styles.verifyButton, { backgroundColor: '#666' }]}
+                onPress={handleClose}
+              >
+                <Text style={styles.verifyButtonText}>Close</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      </View>
+    </Modal>
+  );
+};
 
 const LogoutButton: React.FC<{ onPress: () => void }> = ({ onPress }) => (
   <TouchableOpacity onPress={onPress} style={{ marginLeft: 15 }}>
@@ -509,6 +607,72 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     backgroundColor: '#f4f4f4',
+  },
+  registerButton: {
+    backgroundColor: '#28a99e',
+    width: '100%',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  registerModalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '90%',
+    maxWidth: 400,
+    maxHeight: '80%',
+  },
+  closeButton: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+    padding: 5,
+  },
+  registerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  registerSubtitle: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#666',
+    marginBottom: 20,
+  },
+  stepTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  registerInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 12,
+    marginBottom: 15,
+    width: '100%',
+  },
+  verifyButton: {
+    backgroundColor: '#007aff',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  verifyButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  verificationText: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 20,
+    lineHeight: 22,
   },
   logo: {
     width: 100,
